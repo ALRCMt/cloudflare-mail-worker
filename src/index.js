@@ -215,7 +215,8 @@ class HttpError extends Error {
 async function handleSend(request, env, url) {
   const authorization = request.headers.get("authorization") || "";
   const match = authorization.match(/^Bearer\s+(.+)$/i);
-  if (!(await tokenMatches(match?.[1], env.SEND_TOKEN))) {
+  const queryToken = request.method === "GET" ? url.searchParams.get("token") : null;
+  if (!(await tokenMatches(match?.[1] ?? queryToken, env.SEND_TOKEN))) {
     return jsonResponse({ error: "Unauthorized" }, 401);
   }
   if (!env.RESEND_API_KEY || !env.MAIL_FROM) {

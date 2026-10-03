@@ -46,6 +46,30 @@ test("GET sends an email through the provider API", async (t) => {
   assert.equal(sent.text, "Report");
 });
 
+test("GET can send an email using a token in the browser URL", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let sent;
+  globalThis.fetch = async (_url, init) => {
+    sent = JSON.parse(init.body);
+    return Response.json({ id: "email_browser" });
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const params = new URLSearchParams({
+    token: env.SEND_TOKEN,
+    to: "a@example.net",
+    subject: "Browser",
+    text: "Sent from the address bar",
+  });
+  const response = await worker.fetch(request(`/send?${params}`), env);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true, id: "email_browser" });
+  assert.deepEqual(sent.to, ["a@example.net"]);
+  assert.equal(sent.subject, "Browser");
+  assert.equal(sent.text, "Sent from the address bar");
+});
+
 test("multipart uploads become provider Base64 attachments", async (t) => {
   const originalFetch = globalThis.fetch;
   let sent;
