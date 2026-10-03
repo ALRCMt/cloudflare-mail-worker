@@ -1,6 +1,5 @@
 # 用 Cloudflare Worker 发邮件
-
-[简体中文](README.zh-CN.md) | [English](README.md)
+简体中文 | [English](README.md)
 
 这份指南按步骤带你部署邮件服务，并用浏览器链接发送一封短邮件。
 
